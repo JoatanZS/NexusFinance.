@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexusFinance & Agenda Pro</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            finance: {
+              dark: '#060907',
+              card: '#0f1612',
+              border: '#1a2921',
+              emerald: 'var(--theme-primary, #10b981)',
+              gold: '#f59e0b',
+              accent: 'var(--theme-accent, #059669)'
+            }
+          },
+          keyframes: {
+            fadeInScale: {
+              '0%': { opacity: '0', transform: 'scale(0.95) translateY(10px)' },
+              '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+            },
+            slideUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' }
+            },
+            pulseGlow: {
+              '0%, 100%': { boxShadow: '0 0 15px rgba(16, 185, 129, 0.3)' },
+              '50%': { boxShadow: '0 0 30px rgba(16, 185, 129, 0.6)' }
+            }
+          },
+          animation: {
+            'fade-scale': 'fadeInScale 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'pulse-glow': 'pulseGlow 3s infinite'
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --theme-primary: #10b981;
+      --theme-accent: #059669;
+      --theme-glow: rgba(16, 185, 129, 0.3);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #030504;
+    }
+
+    ::-webkit-scrollbar {
+      width: 4px;
+      height: 4px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #060907;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #1a2921;
+      border-radius: 2px;
+    }
+
+    .tab-view {
+      display: none;
+      opacity: 0;
+      transform: translateY(12px) scale(0.99);
+      transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                  transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tab-view.active {
+      display: block;
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    .phone-frame {
+      box-shadow: 0 30px 70px -15px var(--theme-glow), 0 0 0 14px #121d17;
+    }
+
+    .interactive-btn {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .interactive-btn:active {
+      transform: scale(0.94);
+    }
+
+    .glass-panel {
+      background: linear-gradient(135deg, rgba(15, 22, 18, 0.88) 0%, rgba(10, 15, 12, 0.95) 100%);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(26, 41, 33, 0.85);
+    }
+
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+
+      #printable-report,
+      #printable-report * {
+        visibility: visible;
+      }
+
+      #printable-report {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        color: #000 !important;
+        background: #fff !important;
+      }
+    }
+  </style>
+</head>
+
+<body id="app-body" class="min-h-screen flex items-center justify-center p-0 sm:p-6 text-gray-100 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-finance-dark via-[#030504] to-black">
+
+  <div id="phone-container" class="w-full sm:max-w-[410px] h-screen sm:h-[890px] bg-finance-dark sm:rounded-[44px] flex flex-col overflow-hidden phone-frame relative border-0 sm:border-4 border-finance-border bg-cover bg-center">
+
+    <!-- Onboarding -->
+    <div id="onboarding-screen" class="absolute inset-0 bg-finance-dark z-50 flex flex-col justify-between p-6 overflow-y-auto animate-fade-scale">
+      <div class="space-y-4 pt-6 text-center">
+        <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-[var(--theme-accent)] to-[var(--theme-primary)] flex items-center justify-center mx-auto shadow-xl shadow-emerald-950 animate-pulse-glow">
+          <i class="fa-solid fa-chart-line text-white text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-white tracking-wide">
+            Bem-vindo ao <br><span class="text-[var(--theme-primary)]">NexusFinance PRO</span>
+          </h1>
+          <p class="text-xs text-gray-400 mt-1">Sua central definitiva de gestão financeira, agenda e clientes.</p>
+          <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] font-semibold text-[var(--theme-primary)]">
+            <i class="fa-solid fa-code text-xs"></i> Criado por Joatan
+          </div>
+        </div>
+      </div>
+
+      <div class="my-auto py-4 space-y-4">
+        <div class="glass-panel p-4 rounded-2xl space-y-2 border border-finance-border">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-[var(--theme-primary)] flex items-center justify-center text-lg shrink-0">
+              <i class="fa-solid fa-calendar-days"></i>
+            </div>
+            <div class="text-left">
+              <h3 class="font-bold text-xs text-white">1. Agenda Inteligente & Feriados</h3>
+              <p class="text-[11px] text-gray-400">Organize clientes, datas comemorativas e feriados nacionais com visão separada de caixa.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl space-y-2 border border-finance-border">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg shrink-0">
+              <i class="fa-solid fa-wallet"></i>
+            </div>
+            <div class="text-left">
+              <h3 class="font-bold text-xs text-white">2. Livro-Caixa & Cobrança de Fiados</h3>
+              <p class="text-[11px] text-gray-400">Controle pagamentos, sinais e envie links de cobrança profissional no WhatsApp com 1 clique.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl space-y-2 border border-finance-border">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-lg shrink-0">
+              <i class="fa-solid fa-users"></i>
+            </div>
+            <div class="text-left">
+              <h3 class="font-bold text-xs text-white">3. CRM de Retenção & Clientes Sumidos</h3>
+              <p class="text-[11px] text-gray-400">Monitore o histórico do cliente e receba alertas para recuperar clientes inativos há +30 dias.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl space-y-2 border border-finance-border">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-lg shrink-0">
+              <i class="fa-solid fa-vault"></i>
+            </div>
+            <div class="text-left">
+              <h3 class="font-bold text-xs text-white">4. Investimentos (Investidor 10)</h3>
+              <p class="text-[11px] text-gray-400">Simule independência financeira com juros compostos e acompanhe sua evolução patrimonial.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pb-4">
+        <button onclick="closeOnboarding()" class="interactive-btn w-full bg-[var(--theme-accent)] hover:bg-[var(--theme-primary)] text-white py-3.5 rounded-2xl font-bold text-xs transition shadow-xl flex items-center justify-center gap-2">
+          Começar a Usar o Aplicativo <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Cabeçalho -->
+    <header class="bg-finance-card border-b border-finance-border px-4 py-3.5 flex justify-between items-center shrink-0 z-20 shadow-sm">
+      <div class="flex items-center gap-2.5">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[var(--theme-accent)] to-[var(--theme-primary)] flex items-center justify-center shadow-lg shadow-emerald-950">
+          <i class="fa-solid fa-chart-line text-white text-base"></i>
+        </div>
+        <div>
+          <h1 class="font-bold text-sm tracking-wide text-white flex items-center gap-1.5">
+            Nexus<span style="color: var(--theme-primary);">Finance</span>
+            <span class="text-[9px] bg-emerald-950 text-[var(--theme-primary)] border border-emerald-800 px-1.5 py-0.2 rounded-full font-semibold">PRO</span>
+          </h1>
+          <p class="text-[10px] text-gray-400">Gestão & Agenda Pro</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button onclick="openOnboarding()" class="interactive-btn bg-finance-dark border border-finance-border w-8 h-8 rounded-xl flex items-center justify-center text-gray-300 hover:text-white transition shadow-sm" title="Tutorial das Funções">
+          <i class="fa-solid fa-circle-question text-xs"></i>
+        </button>
+        <button onclick="togglePrivacy()" class="interactive-btn bg-finance-dark border border-finance-border w-8 h-8 rounded-xl flex items-center justify-center text-gray-300 hover:text-white transition shadow-sm" title="Modo Privacidade">
+          <i id="privacy-icon" class="fa-solid fa-eye text-xs"></i>
+        </button>
+        <button onclick="switchTab('settings')" class="interactive-btn bg-finance-dark border border-finance-border w-8 h-8 rounded-xl flex items-center justify-center text-gray-300 hover:text-white transition shadow-sm" title="Definições">
+          <i class="fa-solid fa-gear text-xs"></i>
+        </button>
+      </div>
+    </header>
+
+    <div id="toast-container" class="absolute top-16 left-4 right-4 z-50 pointer-events-none flex flex-col gap-2"></div>
+
+    <main class="flex-1 overflow-y-auto p-4 space-y-4 pb-24 relative">
+
+      <!-- Dashboard -->
+      <div id="view-dashboard" class="tab-view active space-y-4 animate-fade-scale">
+        <div class="grid grid-cols-2 gap-3">
+          <div class="glass-panel p-3.5 rounded-2xl relative overflow-hidden shadow-lg">
+            <p class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Renda Bruta</p>
+            <h3 id="kpi-gross" class="text-lg font-bold text-white mt-0.5">R$ 0,00</h3>
+            <span class="text-[10px] text-[var(--theme-primary)] mt-1 inline-flex items-center gap-1 bg-emerald-500/10 px-1.5 py-0.5 rounded-md"><i class="fa-solid fa-arrow-trend-up"></i> Mês atual</span>
+          </div>
+          <div class="glass-panel p-3.5 rounded-2xl relative overflow-hidden shadow-lg">
+            <p class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Despesas</p>
+            <h3 id="kpi-expenses" class="text-lg font-bold text-red-400 mt-0.5">R$ 0,00</h3>
+            <span class="text-[10px] text-red-400 mt-1 inline-flex items-center gap-1 bg-red-500/10 px-1.5 py-0.5 rounded-md"><i class="fa-solid fa-arrow-trend-down"></i> Custos</span>
+          </div>
+          <div class="glass-panel p-3.5 rounded-2xl relative overflow-hidden shadow-lg">
+            <p class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Lucro Líquido</p>
+            <h3 id="kpi-net" class="text-lg font-bold text-[var(--theme-primary)] mt-0.5">R$ 0,00</h3>
+            <span class="text-[10px] text-gray-400 mt-1 block">Balanço do mês</span>
+          </div>
+          <div class="glass-panel p-3.5 rounded-2xl relative overflow-hidden shadow-lg">
+            <p class="text-[10px] uppercase tracking-wider text-gray-400 font-semibold">Património</p>
+            <h3 id="kpi-patrimony" class="text-lg font-bold text-amber-400 mt-0.5">R$ 0,00</h3>
+            <span class="text-[10px] text-amber-400 mt-1 block"><i class="fa-solid fa-coins"></i> Investidor 10</span>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl shadow-lg">
+          <div class="flex justify-between items-center mb-2">
+            <h4 class="font-bold text-xs text-white flex items-center gap-1.5"><i class="fa-solid fa-flag-checkered text-[var(--theme-primary)]"></i> Meta de Faturamento</h4>
+            <span id="goal-percentage" class="text-[10px] font-bold bg-emerald-500/20 text-[var(--theme-primary)] px-2 py-0.5 rounded-full border border-emerald-500/30">0%</span>
+          </div>
+          <div class="w-full bg-finance-dark h-3 rounded-full overflow-hidden border border-finance-border p-0.5 mb-2 relative">
+            <div id="goal-bar" class="bg-gradient-to-r from-[var(--theme-accent)] to-[var(--theme-primary)] h-full rounded-full transition-all duration-1000 ease-out shadow-sm" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-gray-400 text-[11px]">Atual: <strong id="goal-current" class="text-white">R$ 0,00</strong></span>
+            <div class="flex items-center gap-1.5">
+              <span class="text-gray-400 text-[11px]">Meta: <strong id="goal-target-display" class="text-[var(--theme-primary)]">R$ 5.000</strong></span>
+              <button onclick="openGoalModal()" class="interactive-btn text-[10px] bg-finance-border hover:bg-[var(--theme-accent)] px-2 py-0.5 rounded transition"><i class="fa-solid fa-pen"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl shadow-lg space-y-3">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-xs text-white flex items-center gap-1.5"><i class="fa-solid fa-calendar-day text-[var(--theme-primary)]"></i> Atendimentos Hoje</h4>
+            <button onclick="switchTab('agenda')" class="interactive-btn text-[10px] text-[var(--theme-primary)] hover:underline">Ver Todos</button>
+          </div>
+          <div class="space-y-2 max-h-40 overflow-y-auto pr-1" id="today-appointments-list">
+            <div class="text-center py-4 text-gray-500 text-xs">Nenhum agendamento para hoje.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Agenda -->
+      <div id="view-agenda" class="tab-view space-y-4">
+        <div class="glass-panel p-4 rounded-2xl shadow-lg">
+          <div class="flex justify-between items-center mb-3">
+            <div>
+              <h3 id="calendar-month-year" class="text-sm font-bold text-white">Outubro 2026</h3>
+              <p class="text-[10px] text-gray-400">Feriados Nacionais e Férias integrados</p>
+            </div>
+            <div class="flex items-center gap-1">
+              <button onclick="changeMonth(-1)" class="interactive-btn bg-finance-border hover:bg-[var(--theme-accent)] px-2.5 py-1.5 rounded-lg text-xs transition"><i class="fa-solid fa-chevron-left"></i></button>
+              <button onclick="currentMonthView()" class="interactive-btn bg-finance-border hover:bg-[var(--theme-accent)] px-2.5 py-1.5 rounded-lg text-[11px] transition">Hoje</button>
+              <button onclick="changeMonth(1)" class="interactive-btn bg-finance-border hover:bg-[var(--theme-accent)] px-2.5 py-1.5 rounded-lg text-xs transition"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-gray-400 mb-1">
+            <div>D</div><div>S</div><div>T</div><div>Q</div><div>Q</div><div>S</div><div>S</div>
+          </div>
+          <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl shadow-lg space-y-4">
+          <div class="flex justify-between items-center border-b border-finance-border pb-2">
+            <h4 class="font-bold text-xs text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-calendar-check text-[var(--theme-primary)]"></i>
+              <span id="selected-date-title">--/--/----</span>
+            </h4>
+            <button onclick="openModal()" class="interactive-btn text-[10px] bg-[var(--theme-accent)] hover:bg-[var(--theme-primary)] text-white px-3 py-1.5 rounded-xl font-semibold transition shadow-md">
+              <i class="fa-solid fa-plus mr-1"></i> Registar
+            </button>
+          </div>
+
+          <div class="space-y-2">
+            <h5 class="text-[11px] font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1">
+              <i class="fa-solid fa-clock text-[var(--theme-primary)]"></i> Horários & Agendamentos
+            </h5>
+            <div class="space-y-2 max-h-40 overflow-y-auto" id="agenda-appointments-day-list">
+              <div class="text-center py-2 text-gray-500 text-xs">Sem agendamentos.</div>
+            </div>
+          </div>
+
+          <div class="space-y-2 pt-2 border-t border-finance-border/60">
+            <h5 class="text-[11px] font-bold text-gray-300 uppercase tracking-wider flex items-center gap-1">
+              <i class="fa-solid fa-cash-register text-amber-400"></i> Pagamentos & Fluxo da Empresa
+            </h5>
+            <div class="space-y-2 max-h-40 overflow-y-auto" id="agenda-payments-day-list">
+              <div class="text-center py-2 text-gray-500 text-xs">Sem pagamentos registados.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Financeiro -->
+      <div id="view-finance" class="tab-view space-y-4">
+        <div class="glass-panel p-4 rounded-2xl shadow-lg flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-wallet text-[var(--theme-primary)]"></i> Livro-Caixa & Fiados</h3>
+            <p class="text-[10px] text-gray-400">Controlo de recebimentos e pendências</p>
+          </div>
+          <button onclick="openModal()" class="interactive-btn bg-[var(--theme-accent)] hover:bg-[var(--theme-primary)] text-white px-3 py-1.5 rounded-xl text-[10px] font-semibold transition flex items-center gap-1.5 shadow-md">
+            <i class="fa-solid fa-plus"></i> Novo
+          </button>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl shadow-lg space-y-2">
+          <h4 class="font-bold text-xs text-white flex items-center justify-between">
+            <span><i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i> Fiados & Sinais Pendentes</span>
+            <span id="debt-count-badge" class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full">0 Pendentes</span>
+          </h4>
+          <div id="debts-list-container" class="space-y-2 max-h-40 overflow-y-auto">
+            <div class="text-center py-2 text-gray-500 text-xs">Nenhum pagamento pendente.</div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl shadow-lg space-y-2.5 max-h-60 overflow-y-auto" id="finance-list-container"></div>
+      </div>
+
+      <!-- Catálogo -->
+      <div id="view-catalog" class="tab-view space-y-4">
+        <div class="glass-panel p-4 rounded-2xl shadow-lg flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-scissors text-[var(--theme-primary)]"></i> Catálogo de Serviços</h3>
+            <p class="text-[10px] text-gray-400">Preços predefinidos para agendamento rápido</p>
+          </div>
+          <button onclick="openServiceModal()" class="interactive-btn bg-[var(--theme-accent)] hover:bg-[var(--theme-primary)] text-white px-3 py-1.5 rounded-xl text-[10px] font-semibold transition flex items-center gap-1.5 shadow-md">
+            <i class="fa-solid fa-plus"></i> Serviço
+          </button>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl shadow-lg space-y-2.5 max-h-[440px] overflow-y-auto" id="services-list-container"></div>
+      </div>
+
+      <!-- Investimentos -->
+      <div id="view-investments" class="tab-view space-y-4">
+        <div class="glass-panel p-4 rounded-2xl shadow-lg flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-vault text-amber-400"></i> Património & Investimentos</h3>
+            <p class="text-[10px] text-gray-400">Estilo Investidor 10 & Simulador</p>
+          </div>
+          <button onclick="openAssetModal()" class="interactive-btn bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded-xl text-[10px] font-semibold transition flex items-center gap-1.5 shadow-md">
+            <i class="fa-solid fa-plus"></i> Ativo
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="glass-panel p-3.5 rounded-2xl shadow-lg">
+            <p class="text-[10px] uppercase text-gray-400 font-semibold">Total Investido</p>
+            <h3 id="inv-total" class="text-base font-bold text-amber-400 mt-0.5">R$ 0,00</h3>
+          </div>
+          <div class="glass-panel p-3.5 rounded-2xl shadow-lg">
+            <p class="text-[10px] uppercase text-gray-400 font-semibold">Renda Passiva Est.</p>
+            <h3 id="inv-passive" class="text-base font-bold text-[var(--theme-primary)] mt-0.5">R$ 0,00</h3>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl shadow-lg">
+          <h4 class="font-bold text-xs text-white mb-3 flex items-center gap-1.5"><i class="fa-solid fa-chart-area text-amber-400"></i> Evolução Patrimonial</h4>
+          <div class="h-40 w-full"><canvas id="patrimonyChart"></canvas></div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl shadow-lg space-y-3">
+          <h4 class="font-bold text-xs text-white flex items-center gap-1.5"><i class="fa-solid fa-calculator text-amber-400"></i> Simulador de Independência</h4>
+          <div class="grid grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Aporte Mensal (R$)</label>
+              <input type="number" id="sim-monthly" value="500" oninput="runSimulator()" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2 text-xs text-white focus:border-amber-500 outline-none transition">
+            </div>
+            <div>
+              <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Prazo (Anos)</label>
+              <input type="number" id="sim-years" value="10" oninput="runSimulator()" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2 text-xs text-white focus:border-amber-500 outline-none transition">
+            </div>
+          </div>
+          <div class="bg-finance-dark/80 p-3 rounded-xl border border-finance-border space-y-1 text-xs">
+            <div class="flex justify-between">
+              <span class="text-gray-400 text-[11px]">Montante Final:</span>
+              <span id="sim-result-total" class="font-bold text-amber-400">R$ 0,00</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-400 text-[11px]">Renda Passiva:</span>
+              <span id="sim-result-income" class="font-bold text-[var(--theme-primary)]">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl shadow-lg space-y-2.5 max-h-40 overflow-y-auto" id="assets-list-container"></div>
+      </div>
+
+      <!-- Relatórios -->
+      <div id="view-reports" class="tab-view space-y-4">
+        <div class="glass-panel p-4 rounded-2xl shadow-lg flex justify-between items-center">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-file-invoice text-[var(--theme-primary)]"></i> Fecho de Caixa</h3>
+            <p class="text-[10px] text-gray-400">Resumo financeiro do período</p>
+          </div>
+          <button onclick="window.print()" class="interactive-btn bg-[var(--theme-accent)] hover:bg-[var(--theme-primary)] text-white px-3 py-1.5 rounded-xl text-[10px] font-semibold transition shadow-md">
+            <i class="fa-solid fa-print"></i> Imprimir
+          </button>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl shadow-lg space-y-4" id="printable-report">
+          <div class="flex justify-between items-start border-b border-finance-border pb-3">
+            <div>
+              <h2 class="text-base font-bold text-white">Nexus<span style="color: var(--theme-primary);">Finance</span></h2>
+              <p class="text-[10px] text-gray-400">Relatório Mensal Consolidado</p>
+            </div>
+            <span class="text-[10px] font-semibold text-[var(--theme-primary)] bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">Outubro 2026</span>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-finance-dark p-3 rounded-xl border border-finance-border">
+              <span class="text-[10px] text-gray-400 block">Entradas</span>
+              <span id="rep-gross" class="text-sm font-bold text-white">R$ 0,00</span>
+            </div>
+            <div class="bg-finance-dark p-3 rounded-xl border border-finance-border">
+              <span class="text-[10px] text-gray-400 block">Despesas</span>
+              <span id="rep-expenses" class="text-sm font-bold text-red-400">R$ 0,00</span>
+            </div>
+            <div class="bg-finance-dark p-3 rounded-xl border border-finance-border">
+              <span class="text-[10px] text-gray-400 block">Líquido</span>
+              <span id="rep-net" class="text-sm font-bold text-[var(--theme-primary)]">R$ 0,00</span>
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <h4 class="font-bold text-xs text-white">Por Método de Pagamento</h4>
+            <div class="grid grid-cols-3 gap-2 text-xs">
+              <div class="bg-finance-dark p-2.5 rounded-xl border border-finance-border">
+                <span class="text-gray-400 text-[10px] block">Pix</span>
+                <span id="rep-pix" class="font-bold text-white text-xs">R$ 0,00</span>
+              </div>
+              <div class="bg-finance-dark p-2.5 rounded-xl border border-finance-border">
+                <span class="text-gray-400 text-[10px] block">Cartão</span>
+                <span id="rep-card" class="font-bold text-white text-xs">R$ 0,00</span>
+              </div>
+              <div class="bg-finance-dark p-2.5 rounded-xl border border-finance-border">
+                <span class="text-gray-400 text-[10px] block">Dinheiro</span>
+                <span id="rep-cash" class="font-bold text-white text-xs">R$ 0,00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notificações -->
+      <section id="view-notifications" class="tab-view space-y-4">
+        <div class="glass-panel p-4 rounded-2xl">
+          <h3 class="font-bold text-sm">
+            <i class="fa-solid fa-bell text-emerald-400 mr-1"></i> Notificações
+          </h3>
+          <p class="text-[10px] text-gray-400 mt-1">
+            Lembretes dos seus agendamentos e pagamentos pendentes.
+          </p>
+          <button onclick="requestNotificationPermission()" class="mt-3 w-full bg-emerald-700 hover:bg-emerald-600 p-3 rounded-xl text-xs font-bold">
+            <i class="fa-solid fa-bell mr-1"></i> Ativar notificações do dispositivo
+          </button>
+        </div>
+        <div id="notifications-list" class="space-y-2"></div>
+      </section>
+
+      <!-- Configurações -->
+      <div id="view-settings" class="tab-view space-y-4">
+        <div class="glass-panel p-4 rounded-2xl shadow-lg">
+          <h3 class="text-sm font-bold text-white flex items-center gap-1.5 mb-1"><i class="fa-solid fa-palette text-[var(--theme-primary)]"></i> Customização & Tema</h3>
+          <p class="text-[10px] text-gray-400 mb-4">Escolha a cor de destaque do aplicativo</p>
+          <div class="grid grid-cols-5 gap-2">
+            <button onclick="setThemeColor('#10b981', '#059669', 'rgba(16, 185, 129, 0.3)')" class="interactive-btn h-9 rounded-xl bg-emerald-500 font-bold text-[10px] text-white shadow">Emerald</button>
+            <button onclick="setThemeColor('#f59e0b', '#d97706', 'rgba(245, 158, 11, 0.3)')" class="interactive-btn h-9 rounded-xl bg-amber-500 font-bold text-[10px] text-white shadow">Gold</button>
+            <button onclick="setThemeColor('#06b6d4', '#0891b2', 'rgba(6, 182, 212, 0.3)')" class="interactive-btn h-9 rounded-xl bg-cyan-500 font-bold text-[10px] text-white shadow">Cyber</button>
+            <button onclick="setThemeColor('#8b5cf6', '#7c3aed', 'rgba(139, 92, 246, 0.3)')" class="interactive-btn h-9 rounded-xl bg-purple-500 font-bold text-[10px] text-white shadow">Purple</button>
+            <button onclick="setThemeColor('#f43f5e', '#e11d48', 'rgba(244, 63, 94, 0.3)')" class="interactive-btn h-9 rounded-xl bg-rose-500 font-bold text-[10px] text-white shadow">Rose</button>
+          </div>
+        </div>
+
+        <div class="glass-panel p-4 rounded-2xl shadow-lg space-y-3">
+          <h3 class="text-sm font-bold text-white flex items-center gap-1.5"><i class="fa-solid fa-database text-[var(--theme-primary)]"></i> Segurança & Backup</h3>
+          <p class="text-[10px] text-gray-400">Guarde ou restaure os seus dados em formato JSON a qualquer momento.</p>
+          <div class="flex gap-2">
+            <button onclick="exportJSON()" class="interactive-btn flex-1 bg-finance-border hover:bg-[var(--theme-accent)] text-white p-2.5 rounded-xl text-xs font-semibold transition"><i class="fa-solid fa-download mr-1"></i> Exportar</button>
+            <button onclick="document.getElementById('import-file').click()" class="interactive-btn flex-1 bg-finance-border hover:bg-[var(--theme-accent)] text-white p-2.5 rounded-xl text-xs font-semibold transition"><i class="fa-solid fa-upload mr-1"></i> Importar</button>
+            <input type="file" id="import-file" class="hidden" accept=".json" onchange="importJSON(event)">
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Navegação -->
+    <nav class="bg-finance-card/95 backdrop-blur border-t border-finance-border px-1 py-2 flex justify-around items-center shrink-0 z-20">
+      <button onclick="switchTab('dashboard')" class="nav-btn flex flex-col items-center text-[var(--theme-primary)] transition py-1 px-2 rounded-xl" data-tab="dashboard">
+        <i class="fa-solid fa-house text-sm"></i><span class="text-[9px] font-medium mt-1">Início</span>
+      </button>
+      <button onclick="switchTab('agenda')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-gray-200 transition py-1 px-2 rounded-xl" data-tab="agenda">
+        <i class="fa-solid fa-calendar-days text-sm"></i><span class="text-[9px] font-medium mt-1">Agenda</span>
+      </button>
+      <button onclick="switchTab('finance')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-gray-200 transition py-1 px-2 rounded-xl" data-tab="finance">
+        <i class="fa-solid fa-wallet text-sm"></i><span class="text-[9px] font-medium mt-1">Caixa</span>
+      </button>
+      <button onclick="switchTab('catalog')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-gray-200 transition py-1 px-2 rounded-xl" data-tab="catalog">
+        <i class="fa-solid fa-scissors text-sm"></i><span class="text-[9px] font-medium mt-1">Serviços</span>
+      </button>
+      <button onclick="switchTab('investments')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-gray-200 transition py-1 px-2 rounded-xl" data-tab="investments">
+        <i class="fa-solid fa-vault text-sm"></i><span class="text-[9px] font-medium mt-1">Investir</span>
+      </button>
+      <button onclick="switchTab('notifications')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-gray-200 transition py-1 px-2 rounded-xl" data-tab="notifications">
+        <i class="fa-solid fa-bell text-sm"></i><span class="text-[9px] font-medium mt-1">Avisos</span>
+      </button>
+      <button onclick="switchTab('reports')" class="nav-btn flex flex-col items-center text-gray-400 hover:text-gray-200 transition py-1 px-2 rounded-xl" data-tab="reports">
+        <i class="fa-solid fa-print text-sm"></i><span class="text-[9px] font-medium mt-1">Relatório</span>
+      </button>
+    </nav>
+
+    <!-- Modal de registo -->
+    <div id="modal-entry" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden animate-fade-scale">
+      <div class="glass-panel w-full sm:max-w-md sm:rounded-3xl rounded-t-3xl p-6 border border-finance-border max-h-[90vh] overflow-y-auto space-y-4 shadow-2xl">
+        <div class="flex justify-between items-center border-b border-finance-border pb-3">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-file-circle-plus text-[var(--theme-primary)]"></i> Novo Registo</h3>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-white p-1"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <div class="space-y-3.5 text-xs">
+          <div>
+            <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Tipo de Registo</label>
+            <select id="entry-type" onchange="handleEntryTypeChange()" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)] transition">
+              <option value="appointment">1. Agendamento de Cliente</option>
+              <option value="company_payment">2. Pagamento / Recebimento da Empresa</option>
+              <option value="birthday">3. Aniversariante</option>
+              <option value="vacation">4. Período de Férias / Folga</option>
+            </select>
+          </div>
+
+          <div id="group-catalog-select">
+            <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Catálogo Rápido</label>
+            <select id="entry-catalog-select" onchange="applyCatalogServiceModal()" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)] transition">
+              <option value="">-- Selecionar Serviço do Menu --</option>
+            </select>
+          </div>
+
+          <div>
+            <label id="label-title" class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Cliente / Descrição</label>
+            <input type="text" id="entry-title" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)] transition" placeholder="Ex: Ana Silva ou Fornecedor">
+          </div>
+
+          <div id="group-whatsapp">
+            <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">WhatsApp do Cliente</label>
+            <input type="tel" id="entry-whatsapp" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)] transition" placeholder="+55 11 99999-9999">
+          </div>
+
+          <div>
+            <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Data</label>
+            <input type="date" id="entry-date" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)] transition">
+          </div>
+
+          <div id="group-financials" class="space-y-3.5">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Valor Total (R$)</label>
+                <input type="number" id="entry-amount" step="0.01" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)] transition" placeholder="0.00">
+              </div>
+              <div>
+                <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Valor Pago / Sinal (R$)</label>
+                <input type="number" id="entry-paid" step="0.01" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)] transition" placeholder="0.00">
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Forma de Pagamento</label>
+              <select id="entry-method" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)] transition">
+                <option value="Pix">Pix</option>
+                <option value="Cartão">Cartão</option>
+                <option value="Dinheiro">Dinheiro</option>
+              </select>
+            </div>
+          </div>
+
+          <button onclick="saveEntry()" class="interactive-btn w-full bg-[var(--theme-accent)] hover:bg-[var(--theme-primary)] text-white p-3 rounded-xl font-bold transition shadow-lg mt-2">
+            <i class="fa-solid fa-check mr-1.5"></i> Guardar Registo
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal meta -->
+    <div id="modal-goal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-scale">
+      <div class="glass-panel w-full sm:max-w-sm rounded-3xl p-6 border border-finance-border space-y-4 shadow-2xl">
+        <div class="flex justify-between items-center border-b border-finance-border pb-3">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-flag-checkered text-[var(--theme-primary)]"></i> Meta de Faturamento</h3>
+          <button onclick="closeGoalModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Nova Meta Mensal (R$)</label>
+            <input type="number" id="goal-input-value" step="100" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)]" placeholder="5000">
+          </div>
+          <button onclick="saveGoal()" class="interactive-btn w-full bg-[var(--theme-accent)] hover:bg-[var(--theme-primary)] text-white p-3 rounded-xl font-bold transition">Atualizar Meta</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal serviço -->
+    <div id="modal-service" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-scale">
+      <div class="glass-panel w-full sm:max-w-sm rounded-3xl p-6 border border-finance-border space-y-4 shadow-2xl">
+        <div class="flex justify-between items-center border-b border-finance-border pb-3">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-scissors text-[var(--theme-primary)]"></i> Novo Serviço</h3>
+          <button onclick="closeServiceModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Nome do Serviço</label>
+            <input type="text" id="service-name-input" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)]" placeholder="Ex: Manicure & Gel">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Preço Padrão (R$)</label>
+            <input type="number" id="service-price-input" step="0.01" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-[var(--theme-primary)]" placeholder="60.00">
+          </div>
+          <button onclick="saveService()" class="interactive-btn w-full bg-[var(--theme-accent)] hover:bg-[var(--theme-primary)] text-white p-3 rounded-xl font-bold transition">Guardar no Catálogo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal ativo -->
+    <div id="modal-asset" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-scale">
+      <div class="glass-panel w-full sm:max-w-sm rounded-3xl p-6 border border-finance-border space-y-4 shadow-2xl">
+        <div class="flex justify-between items-center border-b border-finance-border pb-3">
+          <h3 class="font-bold text-sm text-white flex items-center gap-2"><i class="fa-solid fa-vault text-amber-400"></i> Novo Ativo</h3>
+          <button onclick="closeAssetModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Nome do Ativo</label>
+            <input type="text" id="asset-name-input" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-amber-500" placeholder="Ex: PETR4 ou FII HGLG11">
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Categoria</label>
+            <select id="asset-cat-input" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-amber-500">
+              <option value="Ações">Ações</option>
+              <option value="FIIs">Fundos Imobiliários (FIIs)</option>
+              <option value="Renda Fixa">Renda Fixa</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] uppercase font-semibold text-gray-400 mb-1">Valor Total (R$)</label>
+            <input type="number" id="asset-value-input" step="0.01" class="w-full bg-finance-dark border border-finance-border rounded-xl p-2.5 text-white outline-none focus:border-amber-500" placeholder="1000.00">
+          </div>
+          <button onclick="saveAsset()" class="interactive-btn w-full bg-amber-600 hover:bg-amber-500 text-white p-3 rounded-xl font-bold transition">Adicionar Ativo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal recibo -->
+    <div id="modal-receipt" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-scale">
+      <div class="bg-white text-gray-900 w-full sm:max-w-sm rounded-3xl p-6 space-y-4 shadow-2xl">
+        <div class="text-center border-b border-gray-200 pb-3">
+          <h3 class="font-bold text-base">RECIBO DIGITAL</h3>
+          <p id="receipt-number" class="text-[11px] text-gray-500">Comprovativo #0001</p>
+        </div>
+        <div class="space-y-2 text-xs border-y border-dashed border-gray-300 py-3">
+          <p><strong>Cliente:</strong> <span id="receipt-client">--</span></p>
+          <p><strong>Serviço:</strong> <span id="receipt-service">--</span></p>
+          <p><strong>Data:</strong> <span id="receipt-date">--</span></p>
+          <p><strong>Pagamento:</strong> <span id="receipt-method">--</span></p>
+          <div class="text-right pt-2">
+            <span class="text-xs text-gray-500 block">Valor Pago:</span>
+            <h2 id="receipt-amount" class="text-xl font-bold text-emerald-700">R$ 0,00</h2>
+          </div>
+        </div>
+        <div class="flex flex-col gap-2">
+          <button onclick="shareWhatsAppReceipt()" class="interactive-btn w-full bg-[#25d366] text-white p-3 rounded-xl font-bold transition flex items-center justify-center gap-2"><i class="fa-brands fa-whatsapp text-lg"></i> Enviar no WhatsApp</button>
+          <button onclick="closeReceiptModal()" class="interactive-btn w-full bg-gray-200 text-gray-800 p-2.5 rounded-xl font-semibold transition">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const brazilianHolidays = {
+      "2026-01-01": "Confraternização Universal",
+      "2026-04-21": "Tiradentes",
+      "2026-05-01": "Dia do Trabalho",
+      "2026-09-07": "Independência do Brasil",
+      "2026-10-12": "Nossa Sra. Aparecida",
+      "2026-11-02": "Finados",
+      "2026-11-15": "Proclamação da República",
+      "2026-12-25": "Natal"
+    };
+
+    let currentDate = new Date();
+    let selectedDateStr = dateToLocalISO(new Date());
+    let isPrivacyOn = false;
+
+    let entries = JSON.parse(localStorage.getItem('nexus_entries')) || [];
+    let servicesCatalog = JSON.parse(localStorage.getItem('nexus_catalog')) || [
+      { id: 1, name: "Manicure & Gel", price: 80.00 },
+      { id: 2, name: "Pé e Mão Completo", price: 50.00 },
+      { id: 3, name: "Design de Sobrancelhas", price: 40.00 }
+    ];
+    let assets = JSON.parse(localStorage.getItem('nexus_assets')) || [
+      { id: 1, name: "HGLG11 (FII)", category: "FIIs", value: 5000.00 },
+      { id: 2, name: "Tesouro Direto IPCA+", category: "Renda Fixa", value: 8000.00 }
+    ];
+    let monthlyGoal = parseFloat(localStorage.getItem('nexus_goal')) || 5000.00;
+    let currentReceiptData = null;
+    let patrimonyChartInstance = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('entry-date').value = selectedDateStr;
+
+      const hasSeenOnboarding = localStorage.getItem('nexus_onboarding_seen');
+      document.getElementById('onboarding-screen').classList.toggle('hidden', !!hasSeenOnboarding);
+
+      renderCalendar();
+      renderSelectedDateEntries();
+      renderServicesCatalog();
+      renderAssets();
+      renderFinanceList();
+      renderReports();
+      renderDashboard();
+      renderNotifications();
+      runSimulator();
+      initChart();
+      handleEntryTypeChange();
+      notifyUpcomingAppointments();
+    });
+
+    function dateToLocalISO(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function escapeHTML(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]);
+    }
+
+    function closeOnboarding() {
+      document.getElementById('onboarding-screen').classList.add('hidden');
+      localStorage.setItem('nexus_onboarding_seen', 'true');
+    }
+
+    function openOnboarding() {
+      document.getElementById('onboarding-screen').classList.remove('hidden');
+    }
+
+    function handleEntryTypeChange() {
+      const type = document.getElementById('entry-type').value;
+      const groupWhatsapp = document.getElementById('group-whatsapp');
+      const groupFinancials = document.getElementById('group-financials');
+      const groupCatalog = document.getElementById('group-catalog-select');
+      const labelTitle = document.getElementById('label-title');
+
+      if (type === 'appointment') {
+        groupWhatsapp.classList.remove('hidden');
+        groupFinancials.classList.remove('hidden');
+        groupCatalog.classList.remove('hidden');
+        labelTitle.innerText = "Nome do Cliente / Serviço";
+      } else if (type === 'company_payment') {
+        groupWhatsapp.classList.add('hidden');
+        groupFinancials.classList.remove('hidden');
+        groupCatalog.classList.add('hidden');
+        labelTitle.innerText = "Descrição da Despesa / Empresa";
+      } else if (type === 'birthday') {
+        groupWhatsapp.classList.add('hidden');
+        groupFinancials.classList.add('hidden');
+        groupCatalog.classList.add('hidden');
+        labelTitle.innerText = "Nome do Aniversariante";
+      } else if (type === 'vacation') {
+        groupWhatsapp.classList.add('hidden');
+        groupFinancials.classList.add('hidden');
+        groupCatalog.classList.add('hidden');
+        labelTitle.innerText = "Motivo / Descrição das Férias";
+      }
+    }
+
+    function applyCatalogServiceModal() {
+      const select = document.getElementById('entry-catalog-select');
+      const opt = select.options[select.selectedIndex];
+
+      if (select.value) {
+        document.getElementById('entry-title').value = opt.text.split(' - ')[0];
+        document.getElementById('entry-amount').value = select.value;
+        document.getElementById('entry-paid').value = select.value;
+      }
+    }
+
+    function renderServicesCatalog() {
+      const container = document.getElementById('services-list-container');
+      const select = document.getElementById('entry-catalog-select');
+      select.innerHTML = '<option value="">-- Selecionar Serviço do Menu --</option>';
+
+      if (!servicesCatalog.length) {
+        container.innerHTML = '<div class="text-center py-4 text-gray-500 text-xs">Nenhum serviço cadastrado.</div>';
+        return;
+      }
+
+      container.innerHTML = servicesCatalog.map(service => {
+        const option = document.createElement('option');
+        option.value = service.price;
+        option.textContent = `${service.name} - R$ ${Number(service.price).toFixed(2)}`;
+        select.appendChild(option);
+
+        return `
+          <div class="glass-panel p-3 rounded-xl flex justify-between items-center text-xs">
+            <div>
+              <strong class="text-white">${escapeHTML(service.name)}</strong>
+              <p class="text-[var(--theme-primary)] font-semibold mt-0.5">R$ ${Number(service.price).toFixed(2)}</p>
+            </div>
+            <button onclick="deleteService(${Number(service.id)})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function saveService() {
+      const name = document.getElementById('service-name-input').value.trim();
+      const price = parseFloat(document.getElementById('service-price-input').value) || 0;
+
+      if (!name || price <= 0) {
+        showToast('Preencha o nome e preço do serviço!', 'error');
+        return;
+      }
+
+      servicesCatalog.push({ id: Date.now(), name, price });
+      localStorage.setItem('nexus_catalog', JSON.stringify(servicesCatalog));
+      closeServiceModal();
+      renderServicesCatalog();
+      document.getElementById('service-name-input').value = '';
+      document.getElementById('service-price-input').value = '';
+      showToast('Serviço adicionado com sucesso!');
+    }
+
+    function deleteService(id) {
+      servicesCatalog = servicesCatalog.filter(service => service.id !== id);
+      localStorage.setItem('nexus_catalog', JSON.stringify(servicesCatalog));
+      renderServicesCatalog();
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
+
+      document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const grid = document.getElementById('calendar-grid');
+      grid.innerHTML = '';
+
+      for (let i = 0; i < firstDay; i++) {
+        grid.insertAdjacentHTML('beforeend', '<div></div>');
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const isActive = dateStr === selectedDateStr
+          ? 'bg-[var(--theme-primary)] text-gray-950 font-bold shadow-lg scale-105'
+          : 'bg-finance-dark/60 text-gray-200 hover:bg-finance-border';
+        const isHoliday = brazilianHolidays[dateStr];
+        const dayEntries = entries.filter(entry => entry.date === dateStr);
+
+        let indicatorDot = '';
+        if (isHoliday) {
+          indicatorDot = '<div class="w-1.5 h-1.5 rounded-full bg-red-400 absolute bottom-1"></div>';
+        } else if (dayEntries.some(entry => entry.type === 'birthday')) {
+          indicatorDot = '<div class="w-1.5 h-1.5 rounded-full bg-amber-400 absolute bottom-1"></div>';
+        } else if (dayEntries.some(entry => entry.type === 'appointment')) {
+          indicatorDot = '<div class="w-1.5 h-1.5 rounded-full bg-[var(--theme-primary)] absolute bottom-1"></div>';
+        }
+
+        grid.insertAdjacentHTML('beforeend', `
+          <div onclick="selectDate('${dateStr}')" class="interactive-btn aspect-square rounded-xl flex flex-col items-center justify-center text-xs relative cursor-pointer transition ${isActive}">
+            <span>${day}</span>${indicatorDot}
+          </div>
+        `);
+      }
+    }
+
+    function selectDate(dateStr) {
+      selectedDateStr = dateStr;
+      document.getElementById('entry-date').value = selectedDateStr;
+      renderCalendar();
+      renderSelectedDateEntries();
+    }
+
+    function changeMonth(delta) {
+      currentDate.setMonth(currentDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function currentMonthView() {
+      currentDate = new Date();
+      selectedDateStr = dateToLocalISO(currentDate);
+      renderCalendar();
+      renderSelectedDateEntries();
+    }
+
+    function renderSelectedDateEntries() {
+      document.getElementById('selected-date-title').innerText = selectedDateStr.split('-').reverse().join('/');
+
+      const appointmentsDiv = document.getElementById('agenda-appointments-day-list');
+      const paymentsDiv = document.getElementById('agenda-payments-day-list');
+      const dayEntries = entries.filter(entry => entry.date === selectedDateStr);
+
+      const appointments = dayEntries.filter(entry =>
+        ['appointment', 'birthday', 'vacation'].includes(entry.type)
+      );
+      const payments = dayEntries.filter(entry => entry.type === 'company_payment');
+
+      if (!appointments.length) {
+        appointmentsDiv.innerHTML = '<div class="text-center py-2 text-gray-500 text-xs">Sem agendamentos.</div>';
+      } else {
+        appointmentsDiv.innerHTML = appointments.map(entry => `
+          <div class="glass-panel p-2.5 rounded-xl flex justify-between items-center text-xs">
+            <div>
+              <strong class="text-white">${entry.type === 'birthday' ? '🎂 ' : ''}${escapeHTML(entry.title)}</strong>
+              <p class="text-[10px] text-gray-400">
+                ${entry.type === 'birthday' ? 'Aniversário' : entry.type === 'appointment' ? `R$ ${Number(entry.paidAmount || 0).toFixed(2)}` : 'Folga/Férias'}
+              </p>
+            </div>
+            ${entry.type === 'appointment' ? `<button onclick="openReceipt(${Number(entry.id)})" class="text-[10px] bg-finance-border px-2 py-1 rounded-lg text-[var(--theme-primary)] hover:bg-[var(--theme-accent)] hover:text-white transition">Recibo</button>` : ''}
+          </div>
+        `).join('');
+      }
+
+      if (!payments.length) {
+        paymentsDiv.innerHTML = '<div class="text-center py-2 text-gray-500 text-xs">Sem pagamentos.</div>';
+      } else {
+        paymentsDiv.innerHTML = payments.map(entry => `
+          <div class="glass-panel p-2.5 rounded-xl flex justify-between items-center text-xs">
+            <div>
+              <strong class="text-white">🏢 ${escapeHTML(entry.title)}</strong>
+              <p class="text-[10px] text-amber-400">R$ ${Number(entry.paidAmount || 0).toFixed(2)} (${escapeHTML(entry.paymentMethod || 'Outro')})</p>
+            </div>
+            <button onclick="deleteEntry(${Number(entry.id)})" class="text-red-400 hover:text-red-300 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+          </div>
+        `).join('');
+      }
+    }
+
+    function saveEntry() {
+      const type = document.getElementById('entry-type').value;
+      const title = document.getElementById('entry-title').value.trim();
+      const whatsapp = document.getElementById('entry-whatsapp').value.trim();
+      const date = document.getElementById('entry-date').value;
+      const amount = parseFloat(document.getElementById('entry-amount').value) || 0;
+      const paidAmount = parseFloat(document.getElementById('entry-paid').value) || 0;
+      const paymentMethod = document.getElementById('entry-method').value;
+
+      if (!title || !date) {
+        showToast('Preencha o título e a data!', 'error');
+        return;
+      }
+
+      const newEntry = {
+        id: Date.now(),
+        type,
+        title,
+        whatsapp: type === 'appointment' ? whatsapp : '',
+        date,
+        amount: ['appointment', 'company_payment'].includes(type) ? amount : 0,
+        paidAmount: ['appointment', 'company_payment'].includes(type) ? paidAmount : 0,
+        paymentMethod
+      };
+
+      entries.push(newEntry);
+      localStorage.setItem('nexus_entries', JSON.stringify(entries));
+
+      closeModal();
+      renderCalendar();
+      renderSelectedDateEntries();
+      renderFinanceList();
+      renderReports();
+      renderDashboard();
+      renderNotifications();
+
+      document.getElementById('entry-title').value = '';
+      document.getElementById('entry-whatsapp').value = '';
+      document.getElementById('entry-amount').value = '';
+      document.getElementById('entry-paid').value = '';
+
+      showToast('Registo guardado com sucesso!');
+      notifyUpcomingAppointments();
+    }
+
+    function deleteEntry(id) {
+      entries = entries.filter(entry => entry.id !== id);
+      localStorage.setItem('nexus_entries', JSON.stringify(entries));
+      renderCalendar();
+      renderSelectedDateEntries();
+      renderFinanceList();
+      renderReports();
+      renderDashboard();
+      renderNotifications();
+      showToast('Registo eliminado.');
+    }
+
+    function renderFinanceList() {
+      const container = document.getElementById('finance-list-container');
+      const debtsContainer = document.getElementById('debts-list-container');
+      const debts = entries.filter(entry => entry.type === 'appointment' && entry.amount > entry.paidAmount);
+
+      document.getElementById('debt-count-badge').innerText = `${debts.length} Pendentes`;
+
+      if (!debts.length) {
+        debtsContainer.innerHTML = '<div class="text-center py-2 text-gray-500 text-xs">Nenhum pagamento pendente.</div>';
+      } else {
+        debtsContainer.innerHTML = debts.map(debt => `
+          <div class="glass-panel p-2.5 rounded-xl flex justify-between items-center text-xs">
+            <div>
+              <strong class="text-white">${escapeHTML(debt.title)}</strong>
+              <p class="text-[10px] text-amber-400">Falta: R$ ${(debt.amount - debt.paidAmount).toFixed(2)}</p>
+            </div>
+            <button onclick="settleDebt(${Number(debt.id)})" class="interactive-btn text-[10px] bg-[var(--theme-accent)] text-white px-2.5 py-1 rounded-lg">Quitar</button>
+          </div>
+        `).join('');
+      }
+
+      if (!entries.length) {
+        container.innerHTML = '<div class="text-center py-4 text-gray-500 text-xs">Nenhum lançamento no caixa.</div>';
+        return;
+      }
+
+      container.innerHTML = entries.map(entry => `
+        <div class="glass-panel p-3 rounded-xl flex justify-between items-center text-xs">
+          <div>
+            <strong class="text-white">${escapeHTML(entry.title)}</strong>
+            <p class="text-[10px] text-gray-400">${escapeHTML(entry.date)} • ${escapeHTML(entry.paymentMethod || 'Outro')}</p>
+          </div>
+          <div class="text-right">
+            <span class="font-bold ${entry.type === 'company_payment' ? 'text-red-400' : 'text-[var(--theme-primary)]'}">
+              ${entry.type === 'company_payment' ? '-' : '+'} R$ ${Number(entry.paidAmount || 0).toFixed(2)}
+            </span>
+            <button onclick="deleteEntry(${Number(entry.id)})" class="block text-[10px] text-red-400 hover:underline mt-0.5">Eliminar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function settleDebt(id) {
+      const entry = entries.find(item => item.id === id);
+      if (!entry) return;
+
+      entry.paidAmount = entry.amount;
+      localStorage.setItem('nexus_entries', JSON.stringify(entries));
+      renderFinanceList();
+      renderReports();
+      renderDashboard();
+      renderNotifications();
+      showToast('Dívida quitada com sucesso!');
+    }
+
+    function renderReports() {
+      let gross = 0, expenses = 0, pix = 0, card = 0, cash = 0;
+
+      entries.forEach(entry => {
+        if (entry.type === 'appointment') {
+          gross += Number(entry.paidAmount || 0);
+          if (entry.paymentMethod === 'Pix') pix += Number(entry.paidAmount || 0);
+          if (entry.paymentMethod === 'Cartão') card += Number(entry.paidAmount || 0);
+          if (entry.paymentMethod === 'Dinheiro') cash += Number(entry.paidAmount || 0);
+        }
+        if (entry.type === 'company_payment') expenses += Number(entry.paidAmount || 0);
+      });
+
+      document.getElementById('rep-gross').innerText = `R$ ${gross.toFixed(2)}`;
+      document.getElementById('rep-expenses').innerText = `R$ ${expenses.toFixed(2)}`;
+      document.getElementById('rep-net').innerText = `R$ ${(gross - expenses).toFixed(2)}`;
+      document.getElementById('rep-pix').innerText = `R$ ${pix.toFixed(2)}`;
+      document.getElementById('rep-card').innerText = `R$ ${card.toFixed(2)}`;
+      document.getElementById('rep-cash').innerText = `R$ ${cash.toFixed(2)}`;
+    }
+
+    function renderDashboard() {
+      let gross = 0, expenses = 0;
+
+      entries.forEach(entry => {
+        if (entry.type === 'appointment') gross += Number(entry.paidAmount || 0);
+        if (entry.type === 'company_payment') expenses += Number(entry.paidAmount || 0);
+      });
+
+      const net = gross - expenses;
+      const totalAssets = assets.reduce((sum, asset) => sum + Number(asset.value || 0), 0);
+
+      document.getElementById('kpi-gross').innerText = isPrivacyOn ? 'R$ ****' : `R$ ${gross.toFixed(2)}`;
+      document.getElementById('kpi-expenses').innerText = isPrivacyOn ? 'R$ ****' : `R$ ${expenses.toFixed(2)}`;
+      document.getElementById('kpi-net').innerText = isPrivacyOn ? 'R$ ****' : `R$ ${net.toFixed(2)}`;
+      document.getElementById('kpi-patrimony').innerText = isPrivacyOn ? 'R$ ****' : `R$ ${totalAssets.toFixed(2)}`;
+
+      const goalPercent = monthlyGoal > 0 ? Math.min((gross / monthlyGoal) * 100, 100) : 0;
+      document.getElementById('goal-bar').style.width = `${goalPercent}%`;
+      document.getElementById('goal-percentage').innerText = `${goalPercent.toFixed(0)}%`;
+      document.getElementById('goal-current').innerText = isPrivacyOn ? 'R$ ****' : `R$ ${gross.toFixed(2)}`;
+      document.getElementById('goal-target-display').innerText = `R$ ${monthlyGoal.toFixed(0)}`;
+
+      const todayStr = dateToLocalISO(new Date());
+      const todayAppointments = entries.filter(entry => entry.date === todayStr && entry.type === 'appointment');
+      const todayContainer = document.getElementById('today-appointments-list');
+
+      if (!todayAppointments.length) {
+        todayContainer.innerHTML = '<div class="text-center py-4 text-gray-500 text-xs">Nenhum agendamento para hoje.</div>';
+      } else {
+        todayContainer.innerHTML = todayAppointments.map(entry => `
+          <div class="glass-panel p-2.5 rounded-xl flex justify-between items-center text-xs">
+            <div>
+              <strong class="text-white">${escapeHTML(entry.title)}</strong>
+              <p class="text-[10px] text-gray-400">R$ ${Number(entry.paidAmount || 0).toFixed(2)} (${escapeHTML(entry.paymentMethod || '')})</p>
+            </div>
+            ${entry.whatsapp ? `<a href="https://wa.me/${encodeURIComponent(entry.whatsapp.replace(/\D/g, ''))}?text=${encodeURIComponent(`Olá ${entry.title}, tudo bem?`)}" target="_blank" rel="noopener" class="bg-emerald-600 hover:bg-emerald-500 text-white p-2 rounded-lg"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+          </div>
+        `).join('');
+      }
+    }
+
+    function renderNotifications() {
+  const container = document.getElementById('notifications-list');
+  if (!container) return;
+
+  const today = dateToLocalISO(new Date());
+
+  // Inclui todos os agendamentos e pagamentos empresariais ainda pendentes.
+  const reminders = entries
+    .filter(entry =>
+      entry.type === 'appointment' ||
+      (
+        entry.type === 'company_payment' &&
+        Number(entry.amount || 0) > Number(entry.paidAmount || 0)
+      )
+    )
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  if (!reminders.length) {
+    container.innerHTML =
+      '<div class="glass-panel p-4 rounded-2xl text-center text-xs text-gray-400">Nenhum lembrete.</div>';
+    return;
+  }
+
+  container.innerHTML = reminders.map(entry => {
+    const isAppointment = entry.type === 'appointment';
+    const isPast = entry.date < today;
+    const isToday = entry.date === today;
+
+    const status = isPast ? 'Perdido' : isToday ? 'Hoje' : 'Futuro';
+    const statusClass = isPast
+      ? 'text-red-400'
+      : isToday
+        ? 'text-amber-400'
+        : 'text-emerald-400';
+
+    const typeLabel = isAppointment
+      ? 'Agendamento de cliente'
+      : 'Pagamento pendente da empresa';
+
+    const icon = isPast
+      ? 'fa-triangle-exclamation'
+      : isAppointment
+        ? 'fa-calendar-check'
+        : 'fa-money-bill-wave';
+
+    const iconClass = isPast
+      ? 'bg-red-500/20 text-red-400'
+      : isAppointment
+        ? 'bg-emerald-500/20 text-emerald-400'
+        : 'bg-amber-500/20 text-amber-400';
+
+    return `
+      <div class="glass-panel p-4 rounded-2xl flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl ${iconClass} flex items-center justify-center shrink-0">
+          <i class="fa-solid ${icon}"></i>
+        </div>
+        <div class="min-w-0">
+          <strong class="text-xs">${escapeHTML(entry.title)}</strong>
+          <p class="text-[10px] text-gray-400 mt-1">
+            ${typeLabel} · ${entry.date.split('-').reverse().join('/')}
+          </p>
+          <p class="text-[10px] font-bold mt-1 ${statusClass}">${status}</p>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+    async function requestNotificationPermission() {
+      if (!('Notification' in window)) {
+        showToast('Este navegador não oferece notificações.', 'error');
+        return;
+      }
+
+      if (!window.isSecureContext) {
+        showToast('Notificações exigem HTTPS ou localhost.', 'error');
+        return;
+      }
+
+      try {
+        const permission = await Notification.requestPermission();
+
+        if (permission !== 'granted') {
+          showToast('Permissão para notificações não concedida.', 'error');
+          return;
+        }
+
+        showToast('Notificações ativadas.');
+        notifyUpcomingAppointments();
+      } catch (error) {
+        showToast('Não foi possível ativar as notificações.', 'error');
+      }
+    }
+
+    function notifyUpcomingAppointments() {
+      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+
+      const today = dateToLocalISO(new Date());
+      const appointments = entries.filter(entry =>
+        entry.date === today && entry.type === 'appointment'
+      );
+
+      appointments.forEach(entry => {
+        const key = `nexus_notified_${entry.id}_${today}`;
+        if (localStorage.getItem(key)) return;
+
+        new Notification('Agendamento hoje', {
+          body: `${entry.title} — ${entry.date.split('-').reverse().join('/')}`
+        });
+
+        localStorage.setItem(key, 'true');
+      });
+    }
+
+    function runSimulator() {
+      const monthly = parseFloat(document.getElementById('sim-monthly').value) || 0;
+      const years = parseFloat(document.getElementById('sim-years').value) || 0;
+      const rate = 0.008;
+      let total = 10000;
+      const months = Math.max(0, Math.floor(years * 12));
+
+      for (let i = 0; i < months; i++) {
+        total = (total + monthly) * (1 + rate);
+      }
+
+      document.getElementById('sim-result-total').innerText = `R$ ${total.toFixed(2)}`;
+      document.getElementById('sim-result-income').innerText = `R$ ${(total * rate).toFixed(2)}/mês`;
+    }
+
+    function openGoalModal() {
+      document.getElementById('goal-input-value').value = monthlyGoal;
+      document.getElementById('modal-goal').classList.remove('hidden');
+    }
+
+    function closeGoalModal() {
+      document.getElementById('modal-goal').classList.add('hidden');
+    }
+
+    function saveGoal() {
+      const value = parseFloat(document.getElementById('goal-input-value').value) || 5000;
+      monthlyGoal = value;
+      localStorage.setItem('nexus_goal', monthlyGoal);
+      closeGoalModal();
+      renderDashboard();
+      showToast('Meta atualizada!');
+    }
+
+    function renderAssets() {
+      const container = document.getElementById('assets-list-container');
+      const total = assets.reduce((sum, asset) => sum + Number(asset.value || 0), 0);
+      const passive = total * 0.0085;
+
+      document.getElementById('inv-total').innerText = `R$ ${total.toFixed(2)}`;
+      document.getElementById('inv-passive').innerText = `R$ ${passive.toFixed(2)}`;
+
+      if (!assets.length) {
+        container.innerHTML = '<div class="text-center py-2 text-gray-500 text-xs">Nenhum ativo registado.</div>';
+        return;
+      }
+
+      container.innerHTML = assets.map(asset => `
+        <div class="glass-panel p-2.5 rounded-xl flex justify-between items-center text-xs">
+          <div>
+            <strong class="text-white">${escapeHTML(asset.name)}</strong>
+            <span class="text-[10px] text-gray-400 block">${escapeHTML(asset.category)}</span>
+          </div>
+          <div class="text-right">
+            <span class="font-bold text-amber-400">R$ ${Number(asset.value).toFixed(2)}</span>
+            <button onclick="deleteAsset(${Number(asset.id)})" class="block text-[10px] text-red-400 hover:underline">Eliminar</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function saveAsset() {
+      const name = document.getElementById('asset-name-input').value.trim();
+      const category = document.getElementById('asset-cat-input').value;
+      const value = parseFloat(document.getElementById('asset-value-input').value) || 0;
+
+      if (!name || value <= 0) {
+        showToast('Preencha os dados do ativo!', 'error');
+        return;
+      }
+
+      assets.push({ id: Date.now(), name, category, value });
+      localStorage.setItem('nexus_assets', JSON.stringify(assets));
+      closeAssetModal();
+      renderAssets();
+      renderDashboard();
+      document.getElementById('asset-name-input').value = '';
+      document.getElementById('asset-value-input').value = '';
+      showToast('Ativo adicionado com sucesso!');
+    }
+
+    function deleteAsset(id) {
+      assets = assets.filter(asset => asset.id !== id);
+      localStorage.setItem('nexus_assets', JSON.stringify(assets));
+      renderAssets();
+      renderDashboard();
+    }
+
+    function initChart() {
+      const canvas = document.getElementById('patrimonyChart');
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      const ctx = canvas.getContext('2d');
+      patrimonyChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out'],
+          datasets: [{
+            label: 'Património (R$)',
+            data: [10000, 11500, 13000, 14200, 16000, 17800, 19500, 21000, 23500, 25000],
+            borderColor: '#f59e0b',
+            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+            fill: true,
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 9 } } },
+            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { size: 9 } } }
+          }
+        }
+      });
+    }
+
+    function openReceipt(id) {
+      const entry = entries.find(item => item.id === id);
+      if (!entry) return;
+
+      currentReceiptData = entry;
+      document.getElementById('receipt-number').innerText = `Comprovativo #${String(entry.id).slice(-4)}`;
+      document.getElementById('receipt-client').innerText = entry.title;
+      document.getElementById('receipt-service').innerText = entry.title;
+      document.getElementById('receipt-date').innerText = entry.date.split('-').reverse().join('/');
+      document.getElementById('receipt-method').innerText = entry.paymentMethod || '';
+      document.getElementById('receipt-amount').innerText = `R$ ${Number(entry.paidAmount || 0).toFixed(2)}`;
+      document.getElementById('modal-receipt').classList.remove('hidden');
+    }
+
+    function closeReceiptModal() {
+      document.getElementById('modal-receipt').classList.add('hidden');
+    }
+
+    function shareWhatsAppReceipt() {
+      if (!currentReceiptData) return;
+
+      const message = `*RECIBO DIGITAL - NEXUSFINANCE*\n\n*Cliente:* ${currentReceiptData.title}\n*Data:* ${currentReceiptData.date}\n*Valor:* R$ ${Number(currentReceiptData.paidAmount || 0).toFixed(2)} (${currentReceiptData.paymentMethod || ''})\n\n_Obrigado pela preferência!_`;
+      const phone = String(currentReceiptData.whatsapp || '').replace(/\D/g, '');
+      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
+    }
+
+    function togglePrivacy() {
+      isPrivacyOn = !isPrivacyOn;
+      document.getElementById('privacy-icon').className = isPrivacyOn
+        ? 'fa-solid fa-eye-slash text-xs'
+        : 'fa-solid fa-eye text-xs';
+      renderDashboard();
+      renderFinanceList();
+    }
+
+    function setThemeColor(primary, accent, glow) {
+      document.documentElement.style.setProperty('--theme-primary', primary);
+      document.documentElement.style.setProperty('--theme-accent', accent);
+      document.documentElement.style.setProperty('--theme-glow', glow);
+      showToast('Tema atualizado com sucesso!');
+    }
+
+    function exportJSON() {
+      const data = { entries, servicesCatalog, assets, monthlyGoal };
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data));
+      const anchor = document.createElement('a');
+      anchor.href = dataStr;
+      anchor.download = `nexus_backup_${dateToLocalISO(new Date())}.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+    }
+
+    function importJSON(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(loadEvent) {
+        try {
+          const imported = JSON.parse(loadEvent.target.result);
+
+          if (Array.isArray(imported.entries)) entries = imported.entries;
+          if (Array.isArray(imported.servicesCatalog)) servicesCatalog = imported.servicesCatalog;
+          if (Array.isArray(imported.assets)) assets = imported.assets;
+          if (Number.isFinite(Number(imported.monthlyGoal))) monthlyGoal = Number(imported.monthlyGoal);
+
+          localStorage.setItem('nexus_entries', JSON.stringify(entries));
+          localStorage.setItem('nexus_catalog', JSON.stringify(servicesCatalog));
+          localStorage.setItem('nexus_assets', JSON.stringify(assets));
+          localStorage.setItem('nexus_goal', String(monthlyGoal));
+
+          location.reload();
+        } catch (error) {
+          showToast('Ficheiro inválido!', 'error');
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(button => {
+        button.classList.remove('text-[var(--theme-primary)]');
+        button.classList.add('text-gray-400');
+      });
+
+      const view = document.getElementById(`view-${tabId}`);
+      const activeButton = document.querySelector(`[data-tab="${tabId}"]`);
+
+      if (view) view.classList.add('active');
+
+      if (activeButton) {
+        activeButton.classList.remove('text-gray-400');
+        activeButton.classList.add('text-[var(--theme-primary)]');
+      }
+
+      if (tabId === 'notifications') renderNotifications();
+    }
+
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `p-3 rounded-xl text-xs font-semibold shadow-lg text-white flex items-center gap-2 ${type === 'error' ? 'bg-red-600' : 'bg-emerald-600'}`;
+
+      const icon = document.createElement('i');
+      icon.className = `fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}`;
+
+      toast.append(icon, document.createTextNode(message));
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function openModal() {
+      document.getElementById('entry-date').value = selectedDateStr;
+      document.getElementById('modal-entry').classList.remove('hidden');
+      handleEntryTypeChange();
+    }
+
+    function closeModal() {
+      document.getElementById('modal-entry').classList.add('hidden');
+    }
+
+    function openServiceModal() {
+      document.getElementById('modal-service').classList.remove('hidden');
+    }
+
+    function closeServiceModal() {
+      document.getElementById('modal-service').classList.add('hidden');
+    }
+
+    function openAssetModal() {
+      document.getElementById('modal-asset').classList.remove('hidden');
+    }
+
+    function closeAssetModal() {
+      document.getElementById('modal-asset').classList.add('hidden');
+    }
+  </script>
+</body>
+</html>
