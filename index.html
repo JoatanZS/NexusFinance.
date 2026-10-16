@@ -500,7 +500,7 @@
             <i class="fa-solid fa-bell text-emerald-400 mr-1"></i> Notificações & Lembretes
           </h3>
           <p class="text-[10px] text-gray-400 mt-1">
-            Lembretes dos seus agendamentos e pagamentos pendentes organizados automaticamente.
+            Lembretes dos seus agendamentos, aniversários, folgas e pagamentos pendentes.
           </p>
         </div>
         <div id="notifications-list" class="space-y-2"></div>
@@ -1172,6 +1172,8 @@
       const reminders = entries
         .filter(entry =>
           entry.type === 'appointment' ||
+          entry.type === 'birthday' ||
+          entry.type === 'vacation' ||
           (
             entry.type === 'company_payment' &&
             Number(entry.amount || 0) > Number(entry.paidAmount || 0)
@@ -1186,7 +1188,6 @@
       }
 
       container.innerHTML = reminders.map(entry => {
-        const isAppointment = entry.type === 'appointment';
         const isPast = entry.date < today;
         const isToday = entry.date === today;
 
@@ -1197,21 +1198,27 @@
             ? 'text-amber-400'
             : 'text-emerald-400';
 
-        const typeLabel = isAppointment
-          ? 'Agendamento de cliente'
-          : 'Pagamento pendente da empresa';
+        let typeLabel = 'Agendamento de cliente';
+        let icon = 'fa-calendar-check';
+        let iconClass = 'bg-emerald-500/20 text-emerald-400';
 
-        const icon = isPast
-          ? 'fa-triangle-exclamation'
-          : isAppointment
-            ? 'fa-calendar-check'
-            : 'fa-money-bill-wave';
+        if (entry.type === 'birthday') {
+          typeLabel = 'Aniversariante';
+          icon = 'fa-cake-candles';
+          iconClass = 'bg-purple-500/20 text-purple-400';
+        } else if (entry.type === 'vacation') {
+          typeLabel = 'Período de Férias / Folga';
+          icon = 'fa-umbrella-beach';
+          iconClass = 'bg-blue-500/20 text-blue-400';
+        } else if (entry.type === 'company_payment') {
+          typeLabel = 'Pagamento pendente da empresa';
+          icon = 'fa-money-bill-wave';
+          iconClass = 'bg-amber-500/20 text-amber-400';
+        }
 
-        const iconClass = isPast
-          ? 'bg-red-500/20 text-red-400'
-          : isAppointment
-            ? 'bg-emerald-500/20 text-emerald-400'
-            : 'bg-amber-500/20 text-amber-400';
+        if (isPast) {
+          iconClass = 'bg-red-500/20 text-red-400';
+        }
 
         return `
           <div class="glass-panel p-4 rounded-2xl flex items-center gap-3">
@@ -1306,186 +1313,4 @@
       renderAssets();
       renderDashboard();
       document.getElementById('asset-name-input').value = '';
-      document.getElementById('asset-value-input').value = '';
-      showToast('Ativo adicionado com sucesso!');
-    }
-
-    function deleteAsset(id) {
-      assets = assets.filter(asset => asset.id !== id);
-      localStorage.setItem('nexus_assets', JSON.stringify(assets));
-      renderAssets();
-      renderDashboard();
-    }
-
-    function initChart() {
-      const canvas = document.getElementById('patrimonyChart');
-      if (!canvas || typeof Chart === 'undefined') return;
-
-      const ctx = canvas.getContext('2d');
-      patrimonyChartInstance = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out'],
-          datasets: [{
-            label: 'Património (R$)',
-            data: [10000, 11500, 13000, 14200, 16000, 17800, 19500, 21000, 23500, 25000],
-            borderColor: '#f59e0b',
-            backgroundColor: 'rgba(245, 158, 11, 0.1)',
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            x: { grid: { display: false }, ticks: { color: '#9ca3af', font: { size: 9 } } },
-            y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af', font: { size: 9 } } }
-          }
-        }
-      });
-    }
-
-    function openReceipt(id) {
-      const entry = entries.find(item => item.id === id);
-      if (!entry) return;
-
-      currentReceiptData = entry;
-      document.getElementById('receipt-number').innerText = `Comprovativo #${String(entry.id).slice(-4)}`;
-      document.getElementById('receipt-client').innerText = entry.title;
-      document.getElementById('receipt-service').innerText = entry.title;
-      document.getElementById('receipt-date').innerText = entry.date.split('-').reverse().join('/');
-      document.getElementById('receipt-method').innerText = entry.paymentMethod || '';
-      document.getElementById('receipt-amount').innerText = `R$ ${Number(entry.paidAmount || 0).toFixed(2)}`;
-      document.getElementById('modal-receipt').classList.remove('hidden');
-    }
-
-    function closeReceiptModal() {
-      document.getElementById('modal-receipt').classList.add('hidden');
-    }
-
-    function shareWhatsAppReceipt() {
-      if (!currentReceiptData) return;
-
-      const message = `*RECIBO DIGITAL - NEXUSFINANCE*\n\n*Cliente:* ${currentReceiptData.title}\n*Data:* ${currentReceiptData.date}\n*Valor:* R$ ${Number(currentReceiptData.paidAmount || 0).toFixed(2)} (${currentReceiptData.paymentMethod || ''})\n\n_Obrigado pela preferência!_`;
-      const phone = String(currentReceiptData.whatsapp || '').replace(/\D/g, '');
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener');
-    }
-
-    function togglePrivacy() {
-      isPrivacyOn = !isPrivacyOn;
-      document.getElementById('privacy-icon').className = isPrivacyOn
-        ? 'fa-solid fa-eye-slash text-xs'
-        : 'fa-solid fa-eye text-xs';
-      renderDashboard();
-      renderFinanceList();
-    }
-
-    function setThemeColor(primary, accent, glow) {
-      document.documentElement.style.setProperty('--theme-primary', primary);
-      document.documentElement.style.setProperty('--theme-accent', accent);
-      document.documentElement.style.setProperty('--theme-glow', glow);
-      showToast('Tema atualizado com sucesso!');
-    }
-
-    function exportJSON() {
-      const data = { entries, servicesCatalog, assets, monthlyGoal };
-      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(data));
-      const anchor = document.createElement('a');
-      anchor.href = dataStr;
-      anchor.download = `nexus_backup_${dateToLocalISO(new Date())}.json`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-    }
-
-    function importJSON(event) {
-      const file = event.target.files && event.target.files[0];
-      if (!file) return;
-
-      const reader = new FileReader();
-      reader.onload = function(loadEvent) {
-        try {
-          const imported = JSON.parse(loadEvent.target.result);
-
-          if (Array.isArray(imported.entries)) entries = imported.entries;
-          if (Array.isArray(imported.servicesCatalog)) servicesCatalog = imported.servicesCatalog;
-          if (Array.isArray(imported.assets)) assets = imported.assets;
-          if (Number.isFinite(Number(imported.monthlyGoal))) monthlyGoal = Number(imported.monthlyGoal);
-
-          localStorage.setItem('nexus_entries', JSON.stringify(entries));
-          localStorage.setItem('nexus_catalog', JSON.stringify(servicesCatalog));
-          localStorage.setItem('nexus_assets', JSON.stringify(assets));
-          localStorage.setItem('nexus_goal', String(monthlyGoal));
-
-          location.reload();
-        } catch (error) {
-          showToast('Ficheiro inválido!', 'error');
-        }
-      };
-      reader.readAsText(file);
-      event.target.value = '';
-    }
-
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-view').forEach(view => view.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(button => {
-        button.classList.remove('text-[var(--theme-primary)]');
-        button.classList.add('text-gray-400');
-      });
-
-      const view = document.getElementById(`view-${tabId}`);
-      const activeButton = document.querySelector(`[data-tab="${tabId}"]`);
-
-      if (view) view.classList.add('active');
-
-      if (activeButton) {
-        activeButton.classList.remove('text-gray-400');
-        activeButton.classList.add('text-[var(--theme-primary)]');
-      }
-
-      if (tabId === 'notifications') renderNotifications();
-    }
-
-    function showToast(message, type = 'success') {
-      const container = document.getElementById('toast-container');
-      const toast = document.createElement('div');
-      toast.className = `p-3 rounded-xl text-xs font-semibold shadow-lg text-white flex items-center gap-2 ${type === 'error' ? 'bg-red-600' : 'bg-emerald-600'}`;
-
-      const icon = document.createElement('i');
-      icon.className = `fa-solid ${type === 'error' ? 'fa-circle-exclamation' : 'fa-circle-check'}`;
-
-      toast.append(icon, document.createTextNode(message));
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
-    }
-
-    function openModal() {
-      document.getElementById('entry-date').value = selectedDateStr;
-      document.getElementById('modal-entry').classList.remove('hidden');
-      handleEntryTypeChange();
-    }
-
-    function closeModal() {
-      document.getElementById('modal-entry').classList.add('hidden');
-    }
-
-    function openServiceModal() {
-      document.getElementById('modal-service').classList.remove('hidden');
-    }
-
-    function closeServiceModal() {
-      document.getElementById('modal-service').classList.add('hidden');
-    }
-
-    function openAssetModal() {
-      document.getElementById('modal-asset').classList.remove('hidden');
-    }
-
-    function closeAssetModal() {
-      document.getElementById('modal-asset').classList.add('hidden');
-    }
-  </script>
-</body>
-</html>
+      document.getElementById('asset
