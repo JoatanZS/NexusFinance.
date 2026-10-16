@@ -493,18 +493,15 @@
         </div>
       </div>
 
-      <!-- Notificações -->
+      <!-- Notificações (Avisos) -->
       <section id="view-notifications" class="tab-view space-y-4">
         <div class="glass-panel p-4 rounded-2xl">
-          <h3 class="font-bold text-sm">
-            <i class="fa-solid fa-bell text-emerald-400 mr-1"></i> Notificações
+          <h3 class="font-bold text-sm text-white">
+            <i class="fa-solid fa-bell text-emerald-400 mr-1"></i> Notificações & Lembretes
           </h3>
           <p class="text-[10px] text-gray-400 mt-1">
-            Lembretes dos seus agendamentos e pagamentos pendentes.
+            Lembretes dos seus agendamentos e pagamentos pendentes organizados automaticamente.
           </p>
-          <button onclick="requestNotificationPermission()" class="mt-3 w-full bg-emerald-700 hover:bg-emerald-600 p-3 rounded-xl text-xs font-bold">
-            <i class="fa-solid fa-bell mr-1"></i> Ativar notificações do dispositivo
-          </button>
         </div>
         <div id="notifications-list" class="space-y-2"></div>
       </section>
@@ -769,7 +766,6 @@
       runSimulator();
       initChart();
       handleEntryTypeChange();
-      notifyUpcomingAppointments();
     });
 
     function dateToLocalISO(date) {
@@ -1036,7 +1032,6 @@
       document.getElementById('entry-paid').value = '';
 
       showToast('Registo guardado com sucesso!');
-      notifyUpcomingAppointments();
     }
 
     function deleteEntry(id) {
@@ -1169,117 +1164,70 @@
     }
 
     function renderNotifications() {
-  const container = document.getElementById('notifications-list');
-  if (!container) return;
-
-  const today = dateToLocalISO(new Date());
-
-  // Inclui todos os agendamentos e pagamentos empresariais ainda pendentes.
-  const reminders = entries
-    .filter(entry =>
-      entry.type === 'appointment' ||
-      (
-        entry.type === 'company_payment' &&
-        Number(entry.amount || 0) > Number(entry.paidAmount || 0)
-      )
-    )
-    .sort((a, b) => a.date.localeCompare(b.date));
-
-  if (!reminders.length) {
-    container.innerHTML =
-      '<div class="glass-panel p-4 rounded-2xl text-center text-xs text-gray-400">Nenhum lembrete.</div>';
-    return;
-  }
-
-  container.innerHTML = reminders.map(entry => {
-    const isAppointment = entry.type === 'appointment';
-    const isPast = entry.date < today;
-    const isToday = entry.date === today;
-
-    const status = isPast ? 'Perdido' : isToday ? 'Hoje' : 'Futuro';
-    const statusClass = isPast
-      ? 'text-red-400'
-      : isToday
-        ? 'text-amber-400'
-        : 'text-emerald-400';
-
-    const typeLabel = isAppointment
-      ? 'Agendamento de cliente'
-      : 'Pagamento pendente da empresa';
-
-    const icon = isPast
-      ? 'fa-triangle-exclamation'
-      : isAppointment
-        ? 'fa-calendar-check'
-        : 'fa-money-bill-wave';
-
-    const iconClass = isPast
-      ? 'bg-red-500/20 text-red-400'
-      : isAppointment
-        ? 'bg-emerald-500/20 text-emerald-400'
-        : 'bg-amber-500/20 text-amber-400';
-
-    return `
-      <div class="glass-panel p-4 rounded-2xl flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl ${iconClass} flex items-center justify-center shrink-0">
-          <i class="fa-solid ${icon}"></i>
-        </div>
-        <div class="min-w-0">
-          <strong class="text-xs">${escapeHTML(entry.title)}</strong>
-          <p class="text-[10px] text-gray-400 mt-1">
-            ${typeLabel} · ${entry.date.split('-').reverse().join('/')}
-          </p>
-          <p class="text-[10px] font-bold mt-1 ${statusClass}">${status}</p>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-    async function requestNotificationPermission() {
-      if (!('Notification' in window)) {
-        showToast('Este navegador não oferece notificações.', 'error');
-        return;
-      }
-
-      if (!window.isSecureContext) {
-        showToast('Notificações exigem HTTPS ou localhost.', 'error');
-        return;
-      }
-
-      try {
-        const permission = await Notification.requestPermission();
-
-        if (permission !== 'granted') {
-          showToast('Permissão para notificações não concedida.', 'error');
-          return;
-        }
-
-        showToast('Notificações ativadas.');
-        notifyUpcomingAppointments();
-      } catch (error) {
-        showToast('Não foi possível ativar as notificações.', 'error');
-      }
-    }
-
-    function notifyUpcomingAppointments() {
-      if (!('Notification' in window) || Notification.permission !== 'granted') return;
+      const container = document.getElementById('notifications-list');
+      if (!container) return;
 
       const today = dateToLocalISO(new Date());
-      const appointments = entries.filter(entry =>
-        entry.date === today && entry.type === 'appointment'
-      );
 
-      appointments.forEach(entry => {
-        const key = `nexus_notified_${entry.id}_${today}`;
-        if (localStorage.getItem(key)) return;
+      const reminders = entries
+        .filter(entry =>
+          entry.type === 'appointment' ||
+          (
+            entry.type === 'company_payment' &&
+            Number(entry.amount || 0) > Number(entry.paidAmount || 0)
+          )
+        )
+        .sort((a, b) => a.date.localeCompare(b.date));
 
-        new Notification('Agendamento hoje', {
-          body: `${entry.title} — ${entry.date.split('-').reverse().join('/')}`
-        });
+      if (!reminders.length) {
+        container.innerHTML =
+          '<div class="glass-panel p-4 rounded-2xl text-center text-xs text-gray-400">Nenhum lembrete registado.</div>';
+        return;
+      }
 
-        localStorage.setItem(key, 'true');
-      });
+      container.innerHTML = reminders.map(entry => {
+        const isAppointment = entry.type === 'appointment';
+        const isPast = entry.date < today;
+        const isToday = entry.date === today;
+
+        const status = isPast ? 'Perdido' : isToday ? 'Hoje' : 'Futuro';
+        const statusClass = isPast
+          ? 'text-red-400'
+          : isToday
+            ? 'text-amber-400'
+            : 'text-emerald-400';
+
+        const typeLabel = isAppointment
+          ? 'Agendamento de cliente'
+          : 'Pagamento pendente da empresa';
+
+        const icon = isPast
+          ? 'fa-triangle-exclamation'
+          : isAppointment
+            ? 'fa-calendar-check'
+            : 'fa-money-bill-wave';
+
+        const iconClass = isPast
+          ? 'bg-red-500/20 text-red-400'
+          : isAppointment
+            ? 'bg-emerald-500/20 text-emerald-400'
+            : 'bg-amber-500/20 text-amber-400';
+
+        return `
+          <div class="glass-panel p-4 rounded-2xl flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl ${iconClass} flex items-center justify-center shrink-0">
+              <i class="fa-solid ${icon}"></i>
+            </div>
+            <div class="min-w-0">
+              <strong class="text-xs text-white">${escapeHTML(entry.title)}</strong>
+              <p class="text-[10px] text-gray-400 mt-1">
+                ${typeLabel} · ${entry.date.split('-').reverse().join('/')}
+              </p>
+              <p class="text-[10px] font-bold mt-1 ${statusClass}">${status}</p>
+            </div>
+          </div>
+        `;
+      }).join('');
     }
 
     function runSimulator() {
