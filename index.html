@@ -766,7 +766,72 @@
       runSimulator();
       initChart();
       handleEntryTypeChange();
+
+      // Solicita permissão e dispara verificação automática de notificações locais para hoje (00:00 ou abertura)
+      solicitarPermissaoNotificacao();
+      setTimeout(verificarNotificacoesDoDiaAuto, 2000);
     });
+
+    // 1. Função para pedir permissão de Notificação nativa no Android/WebView
+    function solicitarPermissaoNotificacao() {
+      if ("Notification" in window) {
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+          Notification.requestPermission().then(permission => {
+            if (permission === "granted") {
+              console.log("Permissão de notificação concedida!");
+            }
+          });
+        }
+      }
+    }
+
+    // 2. Função que verifica agendamentos, aniversários e pagamentos de HOJE e dispara na barra de estado
+    function verificarNotificacoesDoDiaAuto() {
+      if (!("Notification" in window) || Notification.permission !== "granted") {
+        return;
+      }
+
+      const hojeStr = dateToLocalISO(new Date()); // Formato YYYY-MM-DD
+      const ultimaVerificacao = localStorage.getItem('nexus_last_notif_date');
+
+      // Dispara apenas uma vez por dia para evitar spam ao reabrir o app várias vezes
+      if (ultimaVerificacao === hojeStr) {
+        return;
+      }
+
+      let alertasCount = 0;
+
+      entries.forEach(entry => {
+        if (entry.date === hojeStr) {
+          if (entry.type === 'birthday') {
+            enviarNotificacaoLocal("🎉 Aniversariante de Hoje!", `Hoje é o aniversário de ${entry.title}! Não deixe de dar os parabéns.`);
+            alertasCount++;
+          } else if (entry.type === 'appointment') {
+            enviarNotificacaoLocal("📅 Agendamento para Hoje!", `Tem atendimento com ${entry.title} agendado para hoje.`);
+            alertasCount++;
+          } else if (entry.type === 'company_payment') {
+            enviarNotificacaoLocal("💰 Pagamento / Conta para Hoje!", `Existe um pagamento/recebimento registado para hoje: ${entry.title}.`);
+            alertasCount++;
+          }
+        }
+      });
+
+      if (alertasCount > 0) {
+        localStorage.setItem('nexus_last_notif_date', hojeStr);
+      }
+    }
+
+    // 3. Função nativa que exibe o alerta na barra de estado do Android
+    function enviarNotificacaoLocal(titulo, mensagem) {
+      try {
+        new Notification(titulo, {
+          body: mensagem,
+          icon: 'https://joatanzs.github.io/NexusFinance./icon.png'
+        });
+      } catch (e) {
+        console.error("Erro ao disparar notificação local:", e);
+      }
+    }
 
     function dateToLocalISO(date) {
       const year = date.getFullYear();
