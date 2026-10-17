@@ -767,70 +767,45 @@
       initChart();
       handleEntryTypeChange();
 
-      // Solicita permissão e dispara verificação automática de notificações locais para hoje (00:00 ou abertura)
-      solicitarPermissaoNotificacao();
-      setTimeout(verificarNotificacoesDoDiaAuto, 2000);
+      // Inicia verificação automática do dia
+      setTimeout(verificarNotificacoesDoDiaAuto, 1500);
     });
 
-    // 1. Função para pedir permissão de Notificação nativa no Android/WebView
-    function solicitarPermissaoNotificacao() {
-      if ("Notification" in window) {
-        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
-          Notification.requestPermission().then(permission => {
-            if (permission === "granted") {
-              console.log("Permissão de notificação concedida!");
-            }
+    // 1. Envia o sinal para o Android/Kodular ou Navegador
+    function enviarNotificacaoLocal(titulo, mensagem) {
+      const textoNotificacao = `${titulo}|${mensagem}`;
+
+      // Comunicação direta com o Kodular / WebViewer do Android
+      if (window.AppInventor) {
+        window.AppInventor.setWebViewString(textoNotificacao);
+      } 
+      else if ("Notification" in window && Notification.permission === "granted") {
+        try {
+          new Notification(titulo, {
+            body: mensagem,
+            icon: 'https://joatanzs.github.io/NexusFinance./icon.png'
           });
+        } catch (e) {
+          console.error("Erro no envio:", e);
         }
       }
     }
 
-    // 2. Função que verifica agendamentos, aniversários e pagamentos de HOJE e dispara na barra de estado
+    // 2. Verifica eventos agendados para a data de hoje
     function verificarNotificacoesDoDiaAuto() {
-      if (!("Notification" in window) || Notification.permission !== "granted") {
-        return;
-      }
-
-      const hojeStr = dateToLocalISO(new Date()); // Formato YYYY-MM-DD
-      const ultimaVerificacao = localStorage.getItem('nexus_last_notif_date');
-
-      // Dispara apenas uma vez por dia para evitar spam ao reabrir o app várias vezes
-      if (ultimaVerificacao === hojeStr) {
-        return;
-      }
-
-      let alertasCount = 0;
+      const hojeStr = dateToLocalISO(new Date());
 
       entries.forEach(entry => {
         if (entry.date === hojeStr) {
           if (entry.type === 'birthday') {
-            enviarNotificacaoLocal("🎉 Aniversariante de Hoje!", `Hoje é o aniversário de ${entry.title}! Não deixe de dar os parabéns.`);
-            alertasCount++;
+            enviarNotificacaoLocal("🎉 Aniversariante do Dia!", `Hoje é o aniversário de ${entry.title}! Mande os parabéns.`);
           } else if (entry.type === 'appointment') {
-            enviarNotificacaoLocal("📅 Agendamento para Hoje!", `Tem atendimento com ${entry.title} agendado para hoje.`);
-            alertasCount++;
+            enviarNotificacaoLocal("📅 Agendamento Hoje!", `Atendimento com ${entry.title} marcado para hoje.`);
           } else if (entry.type === 'company_payment') {
-            enviarNotificacaoLocal("💰 Pagamento / Conta para Hoje!", `Existe um pagamento/recebimento registado para hoje: ${entry.title}.`);
-            alertasCount++;
+            enviarNotificacaoLocal("💰 Pagamento Pendente!", `Aviso de conta/pagamento de hoje: ${entry.title}.`);
           }
         }
       });
-
-      if (alertasCount > 0) {
-        localStorage.setItem('nexus_last_notif_date', hojeStr);
-      }
-    }
-
-    // 3. Função nativa que exibe o alerta na barra de estado do Android
-    function enviarNotificacaoLocal(titulo, mensagem) {
-      try {
-        new Notification(titulo, {
-          body: mensagem,
-          icon: 'https://joatanzs.github.io/NexusFinance./icon.png'
-        });
-      } catch (e) {
-        console.error("Erro ao disparar notificação local:", e);
-      }
     }
 
     function dateToLocalISO(date) {
@@ -1090,6 +1065,9 @@
       renderReports();
       renderDashboard();
       renderNotifications();
+
+      // Checa se o novo registro é para hoje
+      verificarNotificacoesDoDiaAuto();
 
       document.getElementById('entry-title').value = '';
       document.getElementById('entry-whatsapp').value = '';
@@ -1560,4 +1538,4 @@
     }
   </script>
 </body>
-  </html>
+</html>
